@@ -2,25 +2,17 @@ import java.util.Scanner;
 import java.io.*;
 public class ZerplyAssignment_Template 
 {
-	public static void main(String[] args) throws Exception {
-		userMenu();
-	}
-		
-	static void userMenu () throws Exception {
+	public static void main(String[] args) throws Exception 
+	{
 		final String USER_FILE = "user.csv";
 		final String PROFILE_FILE = "info.csv";
 		Scanner input = new Scanner(System.in);
 		System.out.println("Welcome. Are you a new user? (y/n):");
-		String answer = input.nextLine();
-		while ((!answer.equals("y")) && (!answer.equals("n")) )
+		String received = input.nextLine();
+		if(received =="y") 
 		{
-			System.out.println("Please enter a valid input. It should be(y/n):");
-			answer = input.nextLine();
-		}
-		if(answer.equals("y")) 
-		{
-			String [] splittedInput = readInputFile(USER_FILE);
-			String result ="";
+			String [] arrayInput = readInputFile(USER_FILE);
+
 			System.out.println("Please enter your first name:");
 			String firstName = input.nextLine();
 			firstName = validateName(firstName);
@@ -30,18 +22,19 @@ public class ZerplyAssignment_Template
 			System.out.println("Please enter your email address:");
 			String email = input.nextLine();
 			email = validateEmail(email);
-			if (checkExistingUser(email, splittedInput)) 
+			if (checkExistingUser(email, arrayInput)) 
 				do 
 					{
 						System.out.println("This email has been already used by someone please enter a new email");
 						email = input.nextLine();
 						email = validateEmail(email);
 					}
-				while(checkExistingUser(email, splittedInput));
+				while(checkExistingUser(email, arrayInput));
 			System.out.println("Please enter your password:");
 			String password1 = input.nextLine();
 			System.out.println("Please confirm your password:");
 			String password2 = input.nextLine();
+			boolean receive = validatePassword(password1, password2);
 			while(!validatePassword(password1, password2))
 			{
 				System.out.println("Your passwords do not match please enter again");
@@ -50,22 +43,23 @@ public class ZerplyAssignment_Template
 				System.out.println("Please confirm your password:");
 				password2 = input.nextLine();
 			}
+			String result ="";
 			result = storeUser(email, password1, firstName, lastName);
 			outputInfo(result, USER_FILE);
 			String profileInfo = email + "," + storeUserInfo ();
 			outputInfo(profileInfo, PROFILE_FILE);
 		}
 		
-		else if (answer.equals("n")) 
+		else if (received=="n") 
 		{
-			String [] splittedInput = readInputFile(USER_FILE);
+			String [] arrayInput = readInputFile(USER_FILE);
 			System.out.println("Please enter your email:");
 			String email = input.nextLine();
 			email = validateEmail(email);
 			System.out.println("Please enter your password:");
 			String password = input.nextLine();
 			
-				if (userLogIn(email, password, splittedInput)) 
+				if (userLogIn(email, password, arrayInput)) 
 				{
 					printUserProfile(PROFILE_FILE, email);
 				}
@@ -76,7 +70,7 @@ public class ZerplyAssignment_Template
 	//this method reads existing data from user information and users files
 	static String [] readInputFile (String filename) throws IOException 
 	{ 
-		String [] records = new String [5];
+		String [] records = new String [10];
 		File infile = new File(filename);
 		Scanner lineScanner = new Scanner(infile);
 		String content = "";
@@ -106,9 +100,7 @@ public class ZerplyAssignment_Template
 	//this method takes user input for new users and stores it in a comma separated String
 	static String storeUser (String email, String password, String firstName,  String lastName) 
 	{ 
-		String result =""; 
 		result = email + "," + BCrypt.hashpw(password, BCrypt.gensalt()) + "," + firstName + "," + lastName+ ",";
-		return result; 
 	}
 	//this method writes a String with user info to the users.csv or info.csv (make sure you don’t overwrite your info!)
 	static void outputInfo (String record, String fileName) throws Exception
@@ -125,7 +117,7 @@ public class ZerplyAssignment_Template
 			boolean result = false;
 			for (int i = 0; i < userInfo.length; i++ ) 
 			{
-				if (  (email.equals(userInfo[i])) && (BCrypt.checkpw(password, userInfo[i+1])) )
+				if (  (email.equals(userInfo[0])) && (BCrypt.checkpw(password, userInfo[1])) )
 				{
 					result = true;
 					break;
@@ -170,7 +162,7 @@ public class ZerplyAssignment_Template
 	//this method asks the user for profile info and then stores it in a comma separated String
 	static String storeUserInfo () 
 	{ 
-		String result = "";
+
 		Scanner input = new Scanner(System.in);
 		System.out.println("ACCOUNT CREATED SUCCESSFULLY");
 		System.out.println("Please enter your Twitter handle:");
@@ -230,12 +222,22 @@ public class ZerplyAssignment_Template
 				number = input.nextLine();
 			}
 		System.out.println("Thank you. Your input has been recorded");
+		String result = "";
 		result = twitter + "," + github + "," + website + "," + university+ "," + major+ "," + company+ "," + title+ "," + number+ ",";
 		return result;
 	}
 
 	// *** HELPER METHODS ***
 
+//validate a phone number
+ static boolean validatePhoneNumber(String input) 
+ { 
+		if (input.matches("[0-9]{3}-[0-9]{3}-[0-9]{4}")) {
+			return true;
+		} else {
+			return false;
+		}
+}
 	//this method checks if the two user entered passwords are the same
 	static boolean validatePassword (String password1, String password2) 
 	{ 
@@ -318,13 +320,5 @@ static boolean validateAlphaNumSpace(String input)
 		}
 }
 
-//validate a phone number
- static boolean validatePhoneNumber(String input) 
- { 
-		if (input.matches("[0-9]{3}-[0-9]{3}-[0-9]{4}")) {
-			return true;
-		} else {
-			return false;
-		}
-}
+
 }
